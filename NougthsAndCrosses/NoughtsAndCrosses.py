@@ -35,9 +35,13 @@ clicked_rectangle7 = [(rect_surf7,False)]
 clicked_rectangle8 = [(rect_surf8,False)]
 clicked_rectangle9 = [(rect_surf9,False)]
 
+# Keep track of clicked piece
+clicked_x1 = [()]
+
 game_state = [["", "", ""], ["", "", ""], ["", "", ""]]
 game_board_positions = [(330,500),(530,500),(730,500),(330,300),(530,300),(730,300),(330,100),(530,100),(730,100)]
 spacing = 40
+x_pos = 1000
 
 # Player pieces
 x_piece = pygame.image.load('graphics/cross-normal.png')
@@ -45,6 +49,19 @@ x_piece_highlighted = pygame.image.load('graphics/cross-pressed.png')
 
 # List of remaining pieces for each player
 remaining_x_piece = [x_piece, x_piece, x_piece]
+
+# List for tracking highlighted pieces
+highlighted_states_x = [False,False,False]
+
+# List for storing clickable areas of pieces
+x_piece_rects = []
+
+# Calculating positions and creating rectangles
+for idx, x_piece in enumerate(remaining_x_piece):
+    y_pos = 150 + idx * (150 + spacing)
+    piece_rect = pygame.Rect(x_pos, y_pos, x_piece.get_width(),x_piece.get_height())
+    x_piece_rects.append(piece_rect)
+
 
 while running:
     for event in pygame.event.get():
@@ -64,9 +81,22 @@ while running:
                     rect, clicked = rect_tuple
                     if rect.collidepoint(event.pos):
                         clicked_rectangle2 = [(r, not c) if r == rect else (r, c) for r, c in clicked_rectangle2]
+        
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                for idx, piece_rect in enumerate(x_piece_rects):
+                    if piece_rect.collidepoint(event.pos):
+                        for i in range(len(highlighted_states_x)):
+                            highlighted_states_x[i] = False
+
+                        highlighted_states_x[idx] = True
+
+        
             
 
     screen.blit(background_surface,(0,0))
+    pygame.draw.rect(background_surface,(255,255,255), rect_surf1)
+    pygame.draw.rect(background_surface,(0,0,0), rect_surf2)
     pygame.draw.rect(background_surface,(255,255,255), rect_surf3)
     pygame.draw.rect(background_surface,(0,0,0), rect_surf4)
     pygame.draw.rect(background_surface,(255,255,255), rect_surf5)
@@ -75,21 +105,29 @@ while running:
     pygame.draw.rect(background_surface,(0,0,0), rect_surf8)
     pygame.draw.rect(background_surface,(255,255,255), rect_surf9)
 
-    for idx, piece in enumerate(remaining_x_piece):
+    # for idx, piece in enumerate(remaining_x_piece):
+    #     y_pos = 150 + idx * (x_piece.get_height() + spacing)
+    #     screen.blit(x_piece, (1000, y_pos))
+
+    for idx, x_piece in enumerate(remaining_x_piece):
         y_pos = 150 + idx * (x_piece.get_height() + spacing)
-        screen.blit(x_piece, (1000, y_pos))
-
-    for rect_white, clicked in clicked_rectangle1:
-        if clicked:
-            pygame.draw.rect(background_surface, light_up_color_white, rect_surf1)
+        if highlighted_states_x[idx]: 
+            screen.blit(x_piece_highlighted, (1000, y_pos))
         else:
-            pygame.draw.rect(background_surface, color_white,rect_surf1)
+            screen.blit(x_piece, (1000, y_pos))
 
-    for rect_black, clicked in clicked_rectangle2:
-        if clicked:
-            pygame.draw.rect(background_surface, light_up_color_black, rect_surf2)
-        else:
-            pygame.draw.rect(background_surface, color_black, rect_surf2)
+
+    # for rect_white, clicked in clicked_rectangle1:
+    #     if clicked:
+    #         pygame.draw.rect(background_surface, light_up_color_white, rect_surf1)
+    #     else:
+    #         pygame.draw.rect(background_surface, color_white,rect_surf1)
+
+    # for rect_black, clicked in clicked_rectangle2:
+    #     if clicked:
+    #         pygame.draw.rect(background_surface, light_up_color_black, rect_surf2)
+    #     else:
+    #         pygame.draw.rect(background_surface, color_black, rect_surf2)
 
 
 
