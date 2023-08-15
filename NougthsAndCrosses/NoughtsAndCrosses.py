@@ -41,26 +41,40 @@ clicked_x1 = [()]
 game_state = [["", "", ""], ["", "", ""], ["", "", ""]]
 game_board_positions = [(330,500),(530,500),(730,500),(330,300),(530,300),(730,300),(330,100),(530,100),(730,100)]
 spacing = 40
-x_pos = 1000
+x_pos1 = 1000
+x_pos2 = 150
 
 # Player pieces
 x_piece = pygame.image.load('graphics/cross-normal.png')
 x_piece_highlighted = pygame.image.load('graphics/cross-pressed.png')
+o_piece = pygame.image.load('graphics/nought-normal.png')
+o_piece_highlighted = pygame.image.load('graphics/nought-pressed.png')
+
+# Tracking if and what piece is highlighted
+highlighted_piece_type = None
 
 # List of remaining pieces for each player
 remaining_x_piece = [x_piece, x_piece, x_piece]
+remaining_o_piece = [o_piece, o_piece, o_piece]
 
 # List for tracking highlighted pieces
-highlighted_states_x = [False,False,False]
+highlighted_states_x = [False, False, False]
+highlighted_states_o = [False, False, False]
 
 # List for storing clickable areas of pieces
 x_piece_rects = []
+o_piece_rects = []
 
 # Calculating positions and creating rectangles
 for idx, x_piece in enumerate(remaining_x_piece):
     y_pos = 150 + idx * (150 + spacing)
-    piece_rect = pygame.Rect(x_pos, y_pos, x_piece.get_width(),x_piece.get_height())
+    piece_rect = pygame.Rect(x_pos1, y_pos, x_piece.get_width(),x_piece.get_height())
     x_piece_rects.append(piece_rect)
+
+for idx, o_piece in enumerate(remaining_o_piece):
+    y_pos = 150 + idx * (150 + spacing)
+    piece_rect = pygame.Rect(x_pos2, y_pos, o_piece.get_width(), o_piece.get_height())
+    o_piece_rects.append(piece_rect)
 
 
 while running:
@@ -86,13 +100,28 @@ while running:
             if event.button == 1:
                 for idx, piece_rect in enumerate(x_piece_rects):
                     if piece_rect.collidepoint(event.pos):
+                        # Deselect previously highlighted piece
                         for i in range(len(highlighted_states_x)):
                             highlighted_states_x[i] = False
+                        for i in range(len(highlighted_states_o)):
+                            highlighted_states_o[i] = False
 
+                        # Highlight newly clicked X piece
                         highlighted_states_x[idx] = True
+                        highlighted_piece_type = 'X'
 
-        
-            
+
+                for idx, piece_rect in enumerate(o_piece_rects):
+                    if piece_rect.collidepoint(event.pos):
+                        for i in range(len(highlighted_states_x)):
+                            highlighted_states_x[i] = False
+                        for i in range(len(highlighted_states_o)):
+                            highlighted_states_o[i] = False
+
+                        # Highlight newly clicked O piece
+                        highlighted_states_o[idx] = True
+                        highlighted_piece_type = 'O'
+
 
     screen.blit(background_surface,(0,0))
     pygame.draw.rect(background_surface,(255,255,255), rect_surf1)
@@ -111,10 +140,17 @@ while running:
 
     for idx, x_piece in enumerate(remaining_x_piece):
         y_pos = 150 + idx * (x_piece.get_height() + spacing)
-        if highlighted_states_x[idx]: 
+        if highlighted_piece_type == 'X' and highlighted_states_x[idx]: 
             screen.blit(x_piece_highlighted, (1000, y_pos))
         else:
             screen.blit(x_piece, (1000, y_pos))
+
+    for idx, o_piece in enumerate(remaining_o_piece):
+        y_pos = 150 + idx * (o_piece.get_height() + spacing)
+        if highlighted_piece_type == 'O' and highlighted_states_o[idx]:
+            screen.blit(o_piece_highlighted, (150, y_pos))
+        else:
+            screen.blit(o_piece, (150, y_pos))
 
 
     # for rect_white, clicked in clicked_rectangle1:
